@@ -1,0 +1,104 @@
+
+.main-content {
+    height: 515px;
+    /* border: 2px solid black; */
+}
+
+/* Form */
+.add-ingredient-form {
+    display: flex;
+    gap: 12px;
+    padding: 20px;
+    /* border: 2px solid black; */
+}
+
+.add-ingredient-form input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.add-ingredient-form button {
+    background-color: #141413;
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.add-ingredient-form button:hover {
+    background-color: #333;
+}
+
+/* Ingredients */
+.ingredients-section {
+    padding: 20px 30px;
+    /* border: 2px solid black; */
+    overflow-y: scroll;
+    height: 81%;
+}
+
+.ingredients-section h2 {
+    margin: 0;
+    font-size: 22px;
+    margin-bottom: 16px;
+}
+
+.ingredients-list {
+    margin-bottom: 24px;
+    padding-left: 20px;
+    color: #475467;
+}
+
+.ingredients-list li {
+    margin-bottom: 8px;
+}
+
+/* Recipe box */
+.get-recipe-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f3f4f6;
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.get-recipe-container h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.get-recipe-container p {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.get-recipe-btn {
+    background-color: #d97757;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.get-recipe-btn:hover {
+    background-color: #c25f42;
+}
+
+/* Call AI Button */
+.get-recipe-container{
+    background-color: #e8e8e8;
+}
+
+/* Recipe from AI */
+
+.recipe-from-AI{
+    margin-top: 2rem;
+}
