@@ -5,7 +5,7 @@ export default function Header(){
         <>
             <header className="header">
                 <img className="logo-img" src={logo} alt="logo image"/>
-                <span>Chef GPT</span>
+                <span>Chefgpt</span>
             </header>
             <hr />
         </>
