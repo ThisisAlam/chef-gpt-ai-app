@@ -5,15 +5,16 @@ import OpenAI from "openai";
 
 import { checkEnvironment } from '../../utils.js';
 
+const openai = new OpenAI({
+    apiKey: import.meta.env.VITE_AI_KEY,
+    baseURL: import.meta.env.VITE_AI_URL,
+    dangerouslyAllowBrowser: true
+})
+
 export default function MainContent() {
     //Checking Environment
     checkEnvironment();
     // OpenAI Client
-    const openai = new OpenAI({
-        apiKey: import.meta.env.VITE_AI_KEY,
-        baseURL: import.meta.env.VITE_AI_URL,
-        dangerouslyAllowBrowser: true
-    })
     // Adding Ingreditents
     const [ingredients, setIngredients] = React.useState(["chicken","cheese","eggs","milk","fish"])
     const [recipeShown, setRecipeShown] = React.useState(false)
@@ -46,11 +47,37 @@ export default function MainContent() {
     
     async function getRecipe(e) {
         e.preventDefault();
-        setLoading(true) // 🔥 start loading
-        const recipe = await getRecipeFromMistral(ingredients)
-        setRecipe(recipe)
-        setRecipeShown(true)
-        setLoading(false) // 🔥 stop loading
+        try{
+            setLoading(true) // 🔥 start loading
+            const stream = await openai.responses.create({
+                model: import.meta.env.VITE_AI_MODEL,
+                input: updatedMessages,
+                tools: [{ type: "web_search_preview" }],
+                stream: true
+            })
+            let fullResponse = ""
+            setResponseOutput("")
+            for await (const chunk of stream) {
+                if (chunk.type === "response.output_text.delta") {
+                fullResponse += chunk.delta
+                setResponseOutput(fullResponse)
+                }
+            }
+            setRecipe(recipe)
+            setRecipeShown(true)
+        } catch(error){
+            if(error.status === 401 || error.status === 403){
+                setResponseOutput("Authentication error: Check your AI-KEY and make sure it's Valid");
+            } else if(error.status >= 500){
+                setResponseOutput("AI provider error: Something went wrong on the provider side. Try again shortly.");
+            } else {
+                setResponseOutput(`Unexpected error: ${error.message || error}`);
+            }
+
+        } finally {
+            setLoading(false) // 🔥 stop loading
+            setInputPrompt("")
+        }
     }
 
     // Ingredients List
