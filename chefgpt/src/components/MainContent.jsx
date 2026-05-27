@@ -4,7 +4,8 @@ import React from "react"
 import OpenAI from "openai";
 
 import { checkEnvironment } from '../../utils.js';
-
+import { instructions as systemPrompt } from "../../instructions.js"
+// OpenAI Client
 const openai = new OpenAI({
     apiKey: import.meta.env.VITE_AI_KEY,
     baseURL: import.meta.env.VITE_AI_URL,
@@ -12,17 +13,17 @@ const openai = new OpenAI({
 })
 
 export default function MainContent() {
+
     //Checking Environment
     checkEnvironment();
-    // OpenAI Client
+
     // Adding Ingreditents
-    const [ingredients, setIngredients] = React.useState(["chicken","cheese","eggs","milk","fish"])
+    const [ingredients, setIngredients] = React.useState([])
     const [recipeShown, setRecipeShown] = React.useState(false)
+    const [messages, setMessages] = React.useState(systemPrompt)
+
     // Loading State
     const [loading, setLoading] = React.useState(false)
-    // Markdown Recipe From AI
-    const [recipe, setRecipe] = React.useState("")
-    const recipeSection = React.useRef(null)
 
     // Getting data from Form Function
     function handleSubmit(formData){
@@ -30,10 +31,18 @@ export default function MainContent() {
         addIngredient(newIngredient)
     }
     function addIngredient(item){
-      setIngredients((prev)=>[...prev, item])
+        setIngredients((prev)=>[...prev, item])
     }
-    
-    // Getting data from Form Function
+    // Ingredients List
+    const ingredientItems = ingredients.map((item, index)=>(
+        <li key={index}>{item}</li>
+    ))
+
+    // Markdown Version recipe State
+    const [recipe, setRecipe] = React.useState("")
+
+    // Smooth scrolling
+    const recipeSection = React.useRef(null)
     React.useEffect(() => {
         if (recipe !== "" && recipeSection.current !== null) {
             // recipeSection.current.scrollIntoView({behavior: "smooth"})
@@ -45,6 +54,15 @@ export default function MainContent() {
         }
     }, [recipe])
     
+    const updatedMessages = `
+        ${messages}
+        I have these ingredients:
+        
+        ${ingredients.join(", ")}
+        Please create a recipe in a markdown version.
+    `
+    
+    // Markdown Recipe From AI
     async function getRecipe(e) {
         e.preventDefault();
         try{
@@ -52,38 +70,31 @@ export default function MainContent() {
             const stream = await openai.responses.create({
                 model: import.meta.env.VITE_AI_MODEL,
                 input: updatedMessages,
-                tools: [{ type: "web_search_preview" }],
                 stream: true
             })
             let fullResponse = ""
-            setResponseOutput("")
+            setRecipe("")
             for await (const chunk of stream) {
                 if (chunk.type === "response.output_text.delta") {
                 fullResponse += chunk.delta
-                setResponseOutput(fullResponse)
+                setRecipe(fullResponse)
                 }
             }
-            setRecipe(recipe)
             setRecipeShown(true)
+
         } catch(error){
             if(error.status === 401 || error.status === 403){
-                setResponseOutput("Authentication error: Check your AI-KEY and make sure it's Valid");
+                setRecipe("Authentication error: Check your AI-KEY and make sure it's Valid");
             } else if(error.status >= 500){
-                setResponseOutput("AI provider error: Something went wrong on the provider side. Try again shortly.");
+                setRecipe("AI provider error: Something went wrong on the provider side. Try again shortly.");
             } else {
-                setResponseOutput(`Unexpected error: ${error.message || error}`);
+                setRecipe(`Unexpected error: ${error.message || error}`);
             }
 
         } finally {
-            setLoading(false) // 🔥 stop loading
-            setInputPrompt("")
+            setLoading(false) // 🔥 stop loading\
         }
     }
-
-    // Ingredients List
-    const ingredientItems = ingredients.map((item, index)=>(
-        <li key={index}>{item}</li>
-    ))
 
     return (
         <section className="main-content">
@@ -125,7 +136,6 @@ export default function MainContent() {
                     </section>
                 }
             </section>
-            <Ingredients ingredients={ingredients} />
         </section>
     )
 }
