@@ -1,17 +1,28 @@
 import ReactMarkdown from 'react-markdown'
 import React from "react"
+
 import OpenAI from "openai";
 
-import CallAIButton from "./sub-components/CallAIButton.jsx"
-import RecipeFromAI from "./sub-components/RecipeFromAI.jsx"
+import { checkEnvironment } from '../../utils.js';
 
 export default function MainContent() {
+    //Checking Environment
+    checkEnvironment();
+    // OpenAI Client
+    const openai = new OpenAI({
+        apiKey: import.meta.env.VITE_AI_KEY,
+        baseURL: import.meta.env.VITE_AI_URL,
+        dangerouslyAllowBrowser: true
+    })
+    // Adding Ingreditents
     const [ingredients, setIngredients] = React.useState(["chicken","cheese","eggs","milk","fish"])
+    const [recipeShown, setRecipeShown] = React.useState(false)
+    // Loading State
+    const [loading, setLoading] = React.useState(false)
+    // Markdown Recipe From AI
     const [recipe, setRecipe] = React.useState("")
     const recipeSection = React.useRef(null)
-    const [recipeShown, setRecipeShown] = React.useState(false)
-    const [loading, setLoading] = React.useState(false)
-    
+
     // Getting data from Form Function
     function handleSubmit(formData){
         const newIngredient = formData.get("ingredient")
@@ -20,12 +31,8 @@ export default function MainContent() {
     function addIngredient(item){
       setIngredients((prev)=>[...prev, item])
     }
-
-    // Ingredients List
-    const ingredientItems = ingredients.map((item, index)=>(
-        <li key={index}>{item}</li>
-    ))
     
+    // Getting data from Form Function
     React.useEffect(() => {
         if (recipe !== "" && recipeSection.current !== null) {
             // recipeSection.current.scrollIntoView({behavior: "smooth"})
@@ -36,18 +43,20 @@ export default function MainContent() {
             })
         }
     }, [recipe])
-
     
-    async function getRecipe() {
+    async function getRecipe(e) {
+        e.preventDefault();
         setLoading(true) // 🔥 start loading
-
         const recipe = await getRecipeFromMistral(ingredients)
-
         setRecipe(recipe)
         setRecipeShown(true)
-
         setLoading(false) // 🔥 stop loading
     }
+
+    // Ingredients List
+    const ingredientItems = ingredients.map((item, index)=>(
+        <li key={index}>{item}</li>
+    ))
 
     return (
         <section className="main-content">
