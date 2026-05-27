@@ -1,4 +1,7 @@
-# 🍳 ChefGPT AI App
+<h1 align="center" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+  <img src="./chefgpt/public/logo-icon.png" width="45" />
+  ChefGPT AI App
+</h1>
 
 ChefGPT is an AI-powered recipe generator built with React and OpenAI-compatible APIs.
 Users can add ingredients they already have at home, and the AI generates a complete recipe in clean markdown format with headings, ingredients, instructions, and serving suggestions.
